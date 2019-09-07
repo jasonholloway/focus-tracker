@@ -36,7 +36,7 @@ public:
 };
 
 void WINAPI OnFocus(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD);
-void OnSessionEvent(MSG *msg);
+void OnSessionEvent(ostream *out, MSG *msg);
 HWND CreateMessageWindow();
 void CleanUp();
 BOOL WINAPI CloseHandler(DWORD);
@@ -93,7 +93,7 @@ int main() {
 			break;
 					   
 		case WM_WTSSESSION_CHANGE:
-			OnSessionEvent(&msg);
+			OnSessionEvent(&sink, &msg);
 			break;
 
 		default: DispatchMessage(&msg);
@@ -149,13 +149,13 @@ const char* showSessionEvent(DWORD event) {
 	}
 }
 
-void OnSessionEvent(MSG *msg) {
+void OnSessionEvent(ostream *out, MSG *msg) {
 	SessionChange change;
 	change.time = msg->time;
 	change.event = msg->wParam;
 	change.sessionId = msg->lParam;
 
-	cout << change.time << " |#| SESSION " << change.sessionId << " " << showSessionEvent(change.event) << endl;
+	*out << change.time << " |#| SESSION " << change.sessionId << " " << showSessionEvent(change.event) << endl;
 }
 
 HWND CreateMessageWindow() {
