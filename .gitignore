@@ -1,2 +1,6 @@
 .vs
 *.o
+Release
+Debug
+*.user
+*.filters
