@@ -67,9 +67,6 @@ int main() {
 	LogBuf logBuf(&s, endpoints.begin()->endpoint());
 	ostream sink(&logBuf);
 
-	sink << "WOW!" << endl;
-	sink.flush();
-
 	_hwnd = CreateMessageWindow();
 	_sessionId = WTSGetActiveConsoleSessionId();
 
@@ -90,10 +87,12 @@ int main() {
 
 		case WM_PROCESS_JOBS:
 			_qFocuses->consume_all(dispatchFocus(&sink));
+			sink.flush();
 			break;
 					   
 		case WM_WTSSESSION_CHANGE:
 			OnSessionEvent(&sink, &msg);
+			sink.flush();
 			break;
 
 		default: DispatchMessage(&msg);
@@ -116,7 +115,7 @@ function<void(Focus)> dispatchFocus(ostream *out) {
 			GetModuleFileNameExA(hProc, NULL, szPath, ARRAYSIZE(szPath));
 			CloseHandle(hProc);
 
-			*out << job.time << " |#| " << szPath << " |#| " << szName << endl;
+			*out << job.time << "\tFOCUS\t" << szName << '\t' << szPath << endl;
 		}
 	};
 }
@@ -155,7 +154,7 @@ void OnSessionEvent(ostream *out, MSG *msg) {
 	change.event = msg->wParam;
 	change.sessionId = msg->lParam;
 
-	*out << change.time << " |#| SESSION " << change.sessionId << " " << showSessionEvent(change.event) << endl;
+	*out << change.time << "\tSESSION\t" << change.sessionId << "\t" << showSessionEvent(change.event) << endl;
 }
 
 HWND CreateMessageWindow() {
